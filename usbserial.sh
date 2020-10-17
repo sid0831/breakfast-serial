@@ -59,20 +59,12 @@ EOF
 				exit 1
 			fi
 			;;
-		*)
+		Darwin|FreeBSD|Unix)
 			if ls /dev/tty.usb*; [ $? -eq 0 ]; then
 				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usb*) $BAUD_RATE
 			else
-				TTYLIST="$(ls /dev/tty.*)"
-				while IFS= read -r LINE; do
-                			TTYARRAY+=$LINE
-        			done<<<$TTYLIST
-				for TTYS in "${TTYARRAY[@]}"; do
-					TTYS1=$(echo "$TTYS" | grep -ivE 'tooth')
-					if [ ${#$TTYS1} -eq 0 ]; then
-						screen -c "$HOME/.screenrc" -R -L $TTYS $BAUD_RATE
-					fi
-				done
+				echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+				exit 1
 			fi
 			;;
 	esac
