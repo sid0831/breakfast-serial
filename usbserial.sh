@@ -59,7 +59,7 @@ EOF
 				exit 1
 			fi
 			;;
-		Darwin|FreeBSD|Unix)
+		Darwin)
 			if ls /dev/tty.usb*; [ $? -eq 0 ]; then
 				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usb*) $BAUD_RATE
 			else
@@ -67,6 +67,18 @@ EOF
 				exit 1
 			fi
 			;;
+        FreeBSD)
+            if ls /dev/ttyU*; [ $? -eq 0 ]; then
+                screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyU*) $BAUD_RATE
+            else
+                echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+                exit 1
+            fi
+            ;;
+        *)
+            echo -e "This script doesn't support this type of operating system yet. Aborting."
+            exit 1
+            ;;
 	esac
 }
 
