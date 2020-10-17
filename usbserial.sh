@@ -104,6 +104,7 @@ while test $# -gt 0; do
 			;;
 		-b|--baudrate)
 			if test $# -gt 0 && [ "$2" -le 256000 ]; then
+				unset BAUD_RATE
 				BAUD_RATE=$2
 				shift
 			else
