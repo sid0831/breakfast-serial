@@ -69,7 +69,7 @@ EOF
 			;;
         FreeBSD)
             if ls /dev/ttyU*; [ $? -eq 0 ]; then
-                screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyU*) $BAUD_RATE
+                screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | cut -d ' ' -f 1) $BAUD_RATE
             else
                 echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
                 exit 1
