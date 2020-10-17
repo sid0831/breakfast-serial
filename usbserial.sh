@@ -68,7 +68,8 @@ EOF
                 			TTYARRAY+=$LINE
         			done<<<$TTYLIST
 				for TTYS in "${TTYARRAY[@]}"; do
-					if [ -z "$(echo "$TTYS" | grep -iE 'bluetooth')" ]; then
+					TTYS1=$(echo "$TTYS" | grep -ivE 'tooth')
+					if [ ${#$TTYS1} -eq 0 ]; then
 						screen -c "$HOME/.screenrc" -R -L $TTYS $BAUD_RATE
 					fi
 				done
