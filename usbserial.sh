@@ -30,7 +30,7 @@ EOF
 		read CONTINUE
 		while [ 0 -eq 0 ]; do
 			case "$CONTINUE" in
-				Y|Yes|yes)
+				Y|y|Yes|yes)
 					cat<<EOF > $HOME/.screenrc
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S+0900`-\$USER-serialconsole-diagnose.log"
 logfile flush 1
@@ -39,7 +39,7 @@ log on
 EOF
 					break
 					;;
-				N|No|no)
+				N|n|No|no)
 					exit 1
 					;;
 				*)
