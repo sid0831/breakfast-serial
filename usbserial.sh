@@ -52,11 +52,16 @@ EOF
 	
 	case "$(uname)" in
 		Linux)
-			screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
+			if ls /dev/ttyUSB*; [ $? -eq 0 ]; then
+				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
+			else
+				echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+				exit 1
+			fi
 			;;
 		*)
-			if [ -z $(ls /dev/tty.usbserial* | grep -iE 'no such') ]; then
-				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usbserial*) $BAUD_RATE
+			if ls /dev/tty.usb*; [ $? -eq 0 ]; then
+				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usb*) $BAUD_RATE
 			else
 				TTYLIST="$(ls /dev/tty.*)"
 				readarray -t TTYARRAY <<< "$TTYLIST"
