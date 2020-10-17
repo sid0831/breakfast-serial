@@ -16,26 +16,26 @@ screentty () {
 		exit 1
 	else
 		echo -e "Attaching to the screen..."
-		screen -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
-		exit 0
 	fi	
 
-	if [ -n $HOST_NAME ]; then
-		cat << EOF > $HOME/.screenrc
-		logfile "$HOME/screen_log/$(date +%Y%m%dT%H%M+0900)-$USER-$HOST_NAME-serialconsole-diagnose.log"
-		logflie flush 1
-		log on
+	if [ ${#HOST_NAME} -ne 0 ]; then
+		cat<<EOF > $HOME/.screenrc
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S+0900`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
+logfile flush 1
+logstamp on
+log on
 EOF
 	else
 		echo -e "You didn't enter the host name for your connected device. Continue? (Y/N):"
-		read $CONTINUE
-		until [ 0 -eq 0 ]; do
+		read CONTINUE
+		while [ 0 -eq 0 ]; do
 			case "$CONTINUE" in
 				Y|Yes|yes)
-					cat << EOF > $HOME/.screenrc
-					logfile "$HOME/screen_log/$(date +%Y%m%dT%H%M+0900)-$USER-serialconsole-diagnose.log"
-					logfile flush 1
-					log on
+					cat<<EOF > $HOME/.screenrc
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S+0900`-\$USER-serialconsole-diagnose.log"
+logfile flush 1
+logstamp on
+log on
 EOF
 					break
 					;;
@@ -44,11 +44,12 @@ EOF
 					;;
 				*)
 					echo -e "The input is wrong. Continue without connected device hostname (Y/N)?:"
-					read $CONTINUE
+					read CONTINUE
 					;;
 			esac
 		done
 	fi
+	screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
 }
 
 version () {
@@ -63,7 +64,7 @@ while test $# -gt 0; do
 	case "$1" in
 		-h|--hostname)
 			if test $# -gt 0; then
-				export HOST_NAME=$2
+				HOST_NAME=$2
 				shift
 			else
 				echo -e "Wrong or blank hostname specified.\nCheck your connected device hostname and retry."
@@ -73,9 +74,8 @@ while test $# -gt 0; do
 			;;
 		-b|--baudrate)
 			if test $# -gt 0 && [ "$2" -le 256000 ]; then
-				export BAUD_RATE=$2
+				BAUD_RATE=$2
 				shift
-				screentty
 			else
 				echo -e "Wrong or blank baud rate specified.\nCheck your input and retry."
 				exit 1
@@ -94,7 +94,10 @@ while test $# -gt 0; do
 			;;
 	esac
 done
-if test $# -eq 0; then
-	usage
+
+if [ -n $BAUD_RATE ]; then
+	screentty
+else
 	exit 1
 fi
+
