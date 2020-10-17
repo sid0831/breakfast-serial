@@ -2,7 +2,6 @@
 
 unset HOST_NAME
 unset CONTINUE
-BAUD_RATE=115200
 
 screentty () {
 	if [ -d $HOME/screen_log ]; then
@@ -89,6 +88,8 @@ version () {
 usage () {
 	echo -e "Usage: usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. If this option is not set, it defaults to 115200.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n-h|--help|--usage Shows this help."
 }
+
+BAUD_RATE=115200
 
 while test $# -gt 0; do
 	case "$1" in
