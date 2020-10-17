@@ -49,7 +49,25 @@ EOF
 			esac
 		done
 	fi
-	screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
+	
+	case "$(uname)" in
+		Linux)
+			screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
+			;;
+		*)
+			if [ -n $(ls -1 /dev/tty.usbserial*) ]; then
+				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usbserial*) $BAUD_RATE
+			else
+				TTYLIST="$(ls /dev/tty.*)"
+				readarray -t TTYARRAY <<< "$TTYLIST"
+				for TTYS in "${TTYLIST[@]}"; do
+					if [ -z "$(echo "$TTYS" | grep -iE 'bluetooth')" ]; then
+						screen -c "$HOME/.screenrc" -R -L $TTYS $BAUD_RATE
+					fi
+				done
+			fi
+			;;
+	esac
 }
 
 version () {
@@ -57,7 +75,7 @@ version () {
 }
 
 usage () {
-	echo -e "Usage: usbserial.sh [options]\n\n-b|--baudrate baudrate Specifies the baud rate when you connect to the serial port. Mandatory option.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n-h|--help|--usage Shows this help."
+	echo -e "Usage: usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. Mandatory option.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n-h|--help|--usage Shows this help."
 }
 
 while test $# -gt 0; do
