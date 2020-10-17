@@ -19,7 +19,7 @@ screentty () {
 
 	if [ ${#HOST_NAME} -ne 0 ]; then
 		cat<<EOF > $HOME/.screenrc
-logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S+0900`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
 logfile flush 1
 logstamp on
 log on
@@ -31,7 +31,7 @@ EOF
 			case "$CONTINUE" in
 				Y|y|Yes|yes)
 					cat<<EOF > $HOME/.screenrc
-logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S+0900`-\$USER-serialconsole-diagnose.log"
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-serialconsole-diagnose.log"
 logfile flush 1
 logstamp on
 log on
