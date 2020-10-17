@@ -64,8 +64,10 @@ EOF
 				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usb*) $BAUD_RATE
 			else
 				TTYLIST="$(ls /dev/tty.*)"
-				readarray -t TTYARRAY <<< "$TTYLIST"
-				for TTYS in "${TTYLIST[@]}"; do
+				while IFS= read -r LINE; do
+					TTYARRAY+=("$LINE")
+				done < <$TTYLIST
+				for TTYS in "${TTYARRAY[@]}"; do
 					if [ -z "$(echo "$TTYS" | grep -iE 'bluetooth')" ]; then
 						screen -c "$HOME/.screenrc" -R -L $TTYS $BAUD_RATE
 					fi
