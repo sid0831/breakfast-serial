@@ -55,7 +55,7 @@ EOF
 			screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/ttyUSB*) $BAUD_RATE
 			;;
 		*)
-			if [ -n $(ls -1 /dev/tty.usbserial*) ]; then
+			if [ -z $(ls /dev/tty.usbserial* | grep -iE 'no such') ]; then
 				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usbserial*) $BAUD_RATE
 			else
 				TTYLIST="$(ls /dev/tty.*)"
