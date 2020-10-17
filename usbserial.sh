@@ -49,6 +49,13 @@ EOF
 		done
 	fi
 	
+	DIALOUT=$(cat /etc/group | grep dialout | grep $USER)
+	DIALGID=$(cat /etc/group | grep dialout | cut -d ':' -f 2)
+	if [ ${#DIALOUT} -eq 0 ]; then
+        echo -e "The current user is not found in dialout group (GID $DIALGID).\nThe screen might not work as expected without sudo or adding the user to the group, logging out, and back in.\nPress [ENTER] to continue."
+        read RETURN_KEY
+    fi
+	
 	case "$(uname)" in
 		Linux)
 			if ls /dev/ttyUSB*; [ $? -eq 0 ]; then
