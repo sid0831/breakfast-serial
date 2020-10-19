@@ -105,40 +105,40 @@ EOF
 			esac
 			;;
 		Darwin)
-            TTYUSB=$(ls /dev/tty.usb*)
-            if ls /dev/tty.usb* > /dev/null; [ $? -eq 0 ]; then
-                TTYUSB_LC=$(ls /dev/tty.usb* | wc -l)
-            else
-                TTYUSB_LC=0
-            fi
-            case "$TTYUSB_LC" in
-                0)
-                    echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-                    exit 1
-                    ;;
-                1)
-                    echo -e "Attaching to the screen..."
-                    screen -c "$HOME/.screenrc" -R -L $(ls /dev/tty.usb* | head -n 1) $BAUD_RATE
-                    ;;
-                *)
-                    L=1
-                    until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
-                        case "$L" in
-                            1)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
-                                L=$(( L + 1 ))
-                                ;;
-                            $TTYUSB_LC)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
-                                unset L
-                                ;;
-                            *)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
-                                L=$(( L + 1 ))
-                                ;;
-                        esac
-                    done
-                    echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
+			TTYUSB=$(ls /dev/tty.usb*)
+			if ls /dev/tty.usb* > /dev/null; [ $? -eq 0 ]; then
+				TTYUSB_LC=$(ls /dev/tty.usb* | wc -l)
+			else
+				TTYUSB_LC=0
+			fi
+			case "$TTYUSB_LC" in
+				0)
+					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+					exit 1
+					;;
+				1)
+					echo -e "Attaching to the screen..."
+					screen -c "$HOME/.screenrc" -R -L $(ls /dev/tty.usb* | head -n 1) $BAUD_RATE
+					;;
+				*)
+					L=1
+					until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
+						case "$L" in
+							1)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
+								L=$(( L + 1 ))
+								;;
+							$TTYUSB_LC)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
+								unset L
+								;;
+							*)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
+								L=$(( L + 1 ))
+								;;
+						esac
+					done
+					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
 					for TTYN in "${TTYUSB_ARRAY[@]}"; do
 						case "$SELECTEDTTY" in
@@ -153,43 +153,43 @@ EOF
 						esac
 					done
 					;;
-            esac
+			esac
 			;;
 		FreeBSD)
-            TTYUSB=$(ls /dev/ttyU*)
-            if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
-                TTYUSB_LC=$(ls /dev/ttyU* | wc -l)
-            else
-                TTYUSB_LC=0
-            fi
-            case "$TTYUSB_LC" in
-                0)
-                    echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-                    exit 1
-                    ;;
-                1)
-                    echo -e "Attaching to the screen..."
-                    screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | head -n 1) $BAUD_RATE
-                    ;;
-                *)
-                    L=1
-                    until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
-                        case "$L" in
-                            1)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
-                                L=$(( L + 1 ))
-                                ;;
-                            $TTYUSB_LC)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
-                                unset L
-                                ;;
-                            *)
-                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
-                                L=$(( L + 1 ))
-                                ;;
-                        esac
-                    done
-                    echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
+			TTYUSB=$(ls /dev/ttyU*)
+			if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
+				TTYUSB_LC=$(ls /dev/ttyU* | wc -l)
+			else
+				TTYUSB_LC=0
+			fi
+			case "$TTYUSB_LC" in
+                		0)
+					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+					exit 1
+					;;
+				1)
+					echo -e "Attaching to the screen..."
+					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | head -n 1) $BAUD_RATE
+					;;
+				*)
+					L=1
+					until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
+						case "$L" in
+							1)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
+								L=$(( L + 1 ))
+								;;
+							$TTYUSB_LC)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
+								unset L
+								;;
+							*)
+								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
+								L=$(( L + 1 ))
+								;;
+						esac
+					done
+					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
 					for TTYN in "${TTYUSB_ARRAY[@]}"; do
 						case "$SELECTEDTTY" in
@@ -204,7 +204,7 @@ EOF
 						esac
 					done
 					;;
-            esac
+			esac
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
@@ -224,14 +224,14 @@ usage () {
 }
 
 restorefile () {
-    mv $HOME/.screenrc.tmp $HOME/.screenrc
-    if [ $? -eq 0 ]; then
-        echo -e "Successfully restored screen user configuration file."
-        exit 0
-    else
-        echo -e "Failed to restore screen user configuration file. Please double-check the file."
-        exit 1
-    fi
+	mv $HOME/.screenrc.tmp $HOME/.screenrc
+	if [ $? -eq 0 ]; then
+		echo -e "Successfully restored screen user configuration file."
+		exit 0
+	else
+		echo -e "Failed to restore screen user configuration file. Please double-check the file."
+		exit 1
+	fi
 }
 
 BAUD_RATE=115200
