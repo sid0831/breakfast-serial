@@ -156,12 +156,55 @@ EOF
             esac
 			;;
 		FreeBSD)
-			if ls /dev/ttyU*; [ $? -eq 0 ]; then
-				screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | cut -d ' ' -f 1 | head -n 1) $BAUD_RATE
-			else
-				echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-			exit 1
-			fi
+            TTYUSB=$(ls /dev/ttyU*)
+            if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
+                TTYUSB_LC=$(ls /dev/ttyU* | wc -l)
+            else
+                TTYUSB_LC=0
+            fi
+            case "$TTYUSB_LC" in
+                0)
+                    echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+                    exit 1
+                    ;;
+                1)
+                    echo -e "Attaching to the screen..."
+                    screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | head -n 1) $BAUD_RATE
+                    ;;
+                *)
+                    L=1
+                    until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
+                        case "$L" in
+                            1)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
+                                L=$(( L + 1 ))
+                                ;;
+                            $TTYUSB_LC)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
+                                unset L
+                                ;;
+                            *)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
+                                L=$(( L + 1 ))
+                                ;;
+                        esac
+                    done
+                    echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
+					read SELECTEDTTY
+					for TTYN in "${TTYUSB_ARRAY[@]}"; do
+						case "$SELECTEDTTY" in
+							$TTYN)
+								echo -e "Attaching to the screen..."
+								screen -c "$HOME/.screenrc" -R -L $TTYN $BAUD_RATE
+								;;
+							*)
+								echo -e "Attaching to the screen..."
+								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
+								;;
+						esac
+					done
+					;;
+            esac
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
@@ -172,12 +215,23 @@ EOF
 
 # Prints the script version.
 version () {
-	echo -e "Breakfast-Serial v0.94.810-5\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
+	echo -e "Breakfast-Serial v0.94.810-6\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
 }
 
 # Prints the usage.
 usage () {
 	echo -e "Usage: usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. If this option is not set, it defaults to 115200.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n-h|--help|--usage Shows this help."
+}
+
+restorefile () {
+    mv $HOME/.screenrc.tmp $HOME/.screenrc
+    if [ $? -eq 0 ]; then
+        echo -e "Successfully restored screen user configuration file."
+        exit 0
+    else
+        echo -e "Failed to restore screen user configuration file. Please double-check the file."
+        exit 1
+    fi
 }
 
 BAUD_RATE=115200
@@ -224,3 +278,4 @@ while test $# -gt 0; do
 done
 
 screentty
+restorefile
