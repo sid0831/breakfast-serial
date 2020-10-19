@@ -72,7 +72,7 @@ EOF
 		Linux)
 			TTYUSB=$(ls /dev/ttyUSB*)
 			if ls /dev/ttyUSB* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(echo "$TTYUSB" | wc -l)
+				TTYUSB_LC=$(ls /dev/ttyUSB* | wc -l)
 			else
 				TTYUSB_LC=0
 			fi
@@ -86,11 +86,10 @@ EOF
 					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyUSB* | head -n 1) $BAUD_RATE
 					;;
 				*)
-					TTYUSB=$(ls /dev/ttyUSB* | cut -d ' ' -f 1)
 					readarray -t TTYUSB_ARRAY <<< "$TTYUSB"
 					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
-					for TTYN in "${TTYUSB_ARRAY[@]}" do
+					for TTYN in "${TTYUSB_ARRAY[@]}"; do
 						case "$SELECTEDTTY" in
 							$TTYN)
 								echo -e "Attaching to the screen..."
@@ -106,12 +105,42 @@ EOF
 			esac
 			;;
 		Darwin)
-			if ls /dev/tty.usb*; [ $? -eq 0 ]; then
-				screen -c "$HOME/.screenrc" -R -L $(ls -1 /dev/tty.usb*) $BAUD_RATE
-			else
-				echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-				exit 1
-			fi
+            TTYUSB=$(ls /dev/tty.usb*)
+            if ls /dev/tty.usb* > /dev/null; [ $? -eq 0 ]; then
+                TTYUSB_LC=$(ls /dev/tty.usb* | wc -l)
+            else
+                TTYUSB_LC=0
+            fi
+            case "$TTYUSB_LC" in
+                0)
+                    echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+                    exit 1
+                    ;;
+                1)
+                    echo -e "Attaching to the screen..."
+                    screen -c "$HOME/.screenrc" -R -L $(ls /dev/tty.usb* | head -n 1) $BAUD_RATE
+                    ;;
+                *)
+                    unset lines
+                    while IFS=read -r; do
+                        lines+=("$TTYUSB_ARRAY")
+                    done < ls /dev/tty.usb*
+                    echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
+					read SELECTEDTTY
+					for TTYN in "${TTYUSB_ARRAY[@]}"; do
+						case "$SELECTEDTTY" in
+							$TTYN)
+								echo -e "Attaching to the screen..."
+								screen -c "$HOME/.screenrc" -R -L $TTYN $BAUD_RATE
+								;;
+							*)
+								echo -e "Attaching to the screen..."
+								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
+								;;
+						esac
+					done
+					;;
+            esac
 			;;
 		FreeBSD)
 			if ls /dev/ttyU*; [ $? -eq 0 ]; then
