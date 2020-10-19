@@ -121,10 +121,23 @@ EOF
                     screen -c "$HOME/.screenrc" -R -L $(ls /dev/tty.usb* | head -n 1) $BAUD_RATE
                     ;;
                 *)
-                    unset lines
-                    while IFS=read -r; do
-                        lines+=("$TTYUSB_ARRAY")
-                    done < $(ls /dev/tty.usb*)
+                    L=1
+                    until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
+                        case "$L" in
+                            1)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
+                                L=$(( L + 1 ))
+                                ;;
+                            $TTYUSB_LC)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
+                                unset L
+                                ;;
+                            *)
+                                TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
+                                L=$(( L + 1 ))
+                                ;;
+                        esac
+                    done
                     echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
 					for TTYN in "${TTYUSB_ARRAY[@]}"; do
