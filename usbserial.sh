@@ -107,7 +107,7 @@ EOF
 		Darwin)
 			TTYUSB=$(ls /dev/tty.usb*)
 			if ls /dev/tty.usb* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/tty.usb* | wc -l)
+				TTYUSB_LC=$(ls /dev/tty.usb* | wc -l | sed 's/[ \t]//g')
 			else
 				TTYUSB_LC=0
 			fi
@@ -158,7 +158,7 @@ EOF
 		FreeBSD)
 			TTYUSB=$(ls /dev/ttyU* | grep -vE '(init|lock)')
 			if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/ttyU* | grep -vE '(init|lock)' | wc -l)
+				TTYUSB_LC=$(ls /dev/ttyU* | grep -vE '(init|lock)' | wc -l | sed 's/[ \t]//g')
 			else
 				TTYUSB_LC=0
 			fi
