@@ -124,7 +124,7 @@ EOF
                     unset lines
                     while IFS=read -r; do
                         lines+=("$TTYUSB_ARRAY")
-                    done < ls /dev/tty.usb*
+                    done < $(ls /dev/tty.usb*)
                     echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
 					for TTYN in "${TTYUSB_ARRAY[@]}"; do
