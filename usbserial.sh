@@ -70,22 +70,27 @@ EOF
 	# Checks the operating system and calls the screen.
 	case "$(uname)" in
 		Linux)
-			TTYUSBN=$(ls /dev/ttyUSB* | cut -d ' ' -f 1 | wc -l)
-			case "$TTYUSBN" in
+			TTYUSB=$(ls /dev/ttyUSB*)
+			if ls /dev/ttyUSB* > /dev/null; [ $? -eq 0 ]; then
+				TTYUSB_LC=$(echo "$TTYUSB" | wc -l)
+			else
+				TTYUSB_LC=0
+			fi
+			case "$TTYUSB_LC" in
 				0)
 					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
 					exit 1
 					;;
 				1)
 					echo -e "Attaching to the screen..."
-					screen -c "$HOME/.screenrc" -R -L $(echo "$TTYUSBN" | head -n 1) $BAUD_RATE
+					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyUSB* | head -n 1) $BAUD_RATE
 					;;
 				*)
 					TTYUSB=$(ls /dev/ttyUSB* | cut -d ' ' -f 1)
-					readarray -t TTYUSBS <<< "$TTYUSB"
-					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=$TTYUSBS[0]).\nPossible input: $TTYUSBS[@]"
+					readarray -t TTYUSB_ARRAY <<< "$TTYUSB"
+					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
 					read SELECTEDTTY
-					for TTYN in "${TTYUSBS[@]}" do
+					for TTYN in "${TTYUSB_ARRAY[@]}" do
 						case "$SELECTEDTTY" in
 							$TTYN)
 								echo -e "Attaching to the screen..."
@@ -93,7 +98,7 @@ EOF
 								;;
 							*)
 								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L $TTYUSBS[0] $BAUD_RATE
+								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
 								;;
 						esac
 					done
