@@ -270,7 +270,8 @@ while test $# -gt 0; do
 			shift
 			;;
 		*)
-			echo -e "Unknown option -- $1"
+			echo -e "Unknown option -- $1\n"
+			usage
 			exit 1
 			shift
 			;;
