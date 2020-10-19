@@ -156,9 +156,9 @@ EOF
 			esac
 			;;
 		FreeBSD)
-			TTYUSB=$(ls /dev/ttyU*)
+			TTYUSB=$(ls /dev/ttyU* | grep -vE '(init|lock)')
 			if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/ttyU* | wc -l)
+				TTYUSB_LC=$(ls /dev/ttyU* | grep -vE '(init|lock)' | wc -l)
 			else
 				TTYUSB_LC=0
 			fi
@@ -169,7 +169,7 @@ EOF
 					;;
 				1)
 					echo -e "Attaching to the screen..."
-					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | head -n 1) $BAUD_RATE
+					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | grep -vE '(init|lock)' | head -n 1) $BAUD_RATE
 					;;
 				*)
 					L=1
