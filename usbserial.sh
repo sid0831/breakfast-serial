@@ -294,7 +294,7 @@ while test $# -gt 0; do
 			exit 0
 			shift
 			;;
-		-h|--help|--usage)
+		--help|--usage)
 			usage
 			exit 1
 			shift
