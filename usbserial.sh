@@ -4,6 +4,30 @@ unset HOST_NAME
 unset CONTINUE
 unset SELECTEDTTY
 
+# Read function with null value support.
+readnull () {
+        local INPUTVALUE
+        read INPUTVALUE
+        if [ ${#INPUTVALUE} -eq 0 ]; then
+                INPUTVALUE="NULL0"
+        fi
+        export $1=$INPUTVALUE
+}
+
+# Check if an array contains a value.
+insidearray () {
+	local INVALUE=$1
+	shift
+	local IN=1
+	for ELEMENT; do
+		if [[ $ELEMENT == "$INVALUE" ]]; then
+			IN=0
+			break
+		fi
+	done
+	return $IN
+}
+
 # Modifies the screenrc file and actually calls the screen.
 screentty () {
 	# Checks if the log directory exists and if it doesn't, creates it.
@@ -88,18 +112,20 @@ EOF
 				*)
 					readarray -t TTYUSB_ARRAY <<< "$TTYUSB"
 					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					read SELECTEDTTY
-					for TTYN in "${TTYUSB_ARRAY[@]}"; do
-						case "$SELECTEDTTY" in
-							$TTYN)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L $TTYN $BAUD_RATE
-								;;
-							*)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-								;;
-						esac
+					readnull SELECTEDTTY
+					while [ 0 -eq 0 ]; do
+						if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
+							echo -e "Attaching to the screen..."
+							screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
+							break
+						elif [ $SELECTEDTTY == "NULL0" ]; then
+							echo -e "Attaching to the screen..."
+							screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
+							break
+						else
+							echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
+							readnull SELECTEDTTY
+						fi
 					done
 					;;
 			esac
@@ -139,19 +165,21 @@ EOF
 						esac
 					done
 					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					read SELECTEDTTY
-					for TTYN in "${TTYUSB_ARRAY[@]}"; do
-						case "$SELECTEDTTY" in
-							$TTYN)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L $TTYN $BAUD_RATE
-								;;
-							*)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-								;;
-						esac
-					done
+					readnull SELECTEDTTY
+                                        while [ 0 -eq 0 ]; do
+                                                if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
+                                                        echo -e "Attaching to the screen..."
+                                                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
+                                                        break
+                                                elif [ $SELECTEDTTY == "NULL0" ]; then
+                                                        echo -e "Attaching to the screen..."
+                                                        screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
+                                                        break
+                                                else
+                                                        echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
+                                                        readnull SELECTEDTTY
+                                                fi
+                                        done
 					;;
 			esac
 			;;
@@ -190,19 +218,21 @@ EOF
 						esac
 					done
 					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					read SELECTEDTTY
-					for TTYN in "${TTYUSB_ARRAY[@]}"; do
-						case "$SELECTEDTTY" in
-							$TTYN)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L $TTYN $BAUD_RATE
-								;;
-							*)
-								echo -e "Attaching to the screen..."
-								screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-								;;
-						esac
-					done
+					readnull SELECTEDTTY
+                                        while [ 0 -eq 0 ]; do
+                                                if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
+                                                        echo -e "Attaching to the screen..."
+                                                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
+                                                        break
+                                                elif [ $SELECTEDTTY == "NULL0" ]; then
+                                                        echo -e "Attaching to the screen..."
+                                                        screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
+                                                        break
+                                                else
+                                                        echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
+                                                        readnull SELECTEDTTY
+                                                fi
+                                        done
 					;;
 			esac
 			;;
