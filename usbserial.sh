@@ -22,7 +22,7 @@ callscreen () {
 		local TTYUSB="$1 | $2"
 	fi
 	local QMARK=1
-	if eval $TTYUSB> /dev/null; [ $? -eq 0 ]; then
+	if eval $TTYUSB > /dev/null; [ $? -eq 0 ]; then
         	TTYUSB_LC=$(eval $TTYUSB | wc -l | sed 's/[ \t]//g')
         else
                 TTYUSB_LC=0
