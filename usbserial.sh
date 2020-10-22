@@ -16,7 +16,7 @@ readnull () {
 
 # Actually calls the screen.
 callscreen () {
-	local TTYUSB="ls $1"
+	local TTYUSB="$1"
 	local QMARK=1
 	if $TTYUSB > /dev/null; [ $? -eq 0 ]; then
         	TTYUSB_LC=$($TTYUSB | wc -l | sed 's/[ \t]//g')
@@ -143,13 +143,13 @@ EOF
 	# Checks the operating system and calls the screen.
 	case "$(uname)" in
 		Linux)
-			callscreen "/dev/ttyUSB*" || echo -e "Screen terminated with an error. Check the screen log for details."
+			callscreen "ls /dev/ttyUSB*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		Darwin)
-			callscreen "/dev/tty.usb*" || echo -e "Screen terminated with an error. Check the screen log for details."
+			callscreen "ls /dev/tty.usb*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		FreeBSD)
-			callscreen "/dev/ttyU* | grep -vE '(init|lock)'" || echo -e " Screen terminated with an error. Check the screen log for details."
+			callscreen "ls /dev/ttyU* | grep -vE '(init|lock)'" || echo -e " Screen terminated with an error. Check the screen log for details."
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
