@@ -23,7 +23,7 @@ callscreen () {
 	fi
 	local QMARK=1
 	if eval $TTYUSB> /dev/null; [ $? -eq 0 ]; then
-        	TTYUSB_LC=$(eval $TTYUSB| wc -l | sed 's/[ \t]//g')
+        	TTYUSB_LC=$(eval $TTYUSB | wc -l | sed 's/[ \t]//g')
         else
                 TTYUSB_LC=0
         fi
@@ -34,24 +34,24 @@ callscreen () {
                         ;;
                 1)
                         echo -e "Attaching to the screen..."
-                        screen -c "$HOME/.screenrc" -R -L $(eval $TTYUSB| head -n 1) $BAUD_RATE; QMARK=$?
+                        screen -c "$HOME/.screenrc" -R -L $(eval $TTYUSB | head -n 1) $BAUD_RATE; QMARK=$?
                         ;;
         	*)
 			if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
-				echo -e "Bash 4 is more than $(( $(date +%Y) - 2009 )) years old. UPDATE!!" >&2
+				echo -e "Bash 4 is more than $(( $(date +%Y) - 2009 )) years old. And yet you're using bash $BASH_VERSION. UPDATE!" >&2
 				L=1
                                 until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
 	                                case "$L" in
         	                                1)
-                	                                TTYUSB_ARRAY+=("$(eval $TTYUSB| head -n 1)")
+                	                                TTYUSB_ARRAY+=("$(eval $TTYUSB | head -n 1)")
                                                         L=$(( L + 1 ))
                                                         ;;
                                                 $TTYUSB_LC)
-                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB| tail -n 1)")
+                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB | tail -n 1)")
                                                         unset L
                                                         ;;
                                                 *)
-                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB| head -n $L | tail -n 1)")
+                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB | head -n $L | tail -n 1)")
                                                         L=$(( L + 1 ))
                                                         ;;
                                         esac
@@ -147,7 +147,7 @@ EOF
 	# Checks the operating system and calls the screen.
 	case "$(uname)" in
 		Linux)
-			callscreen "ls /dev/ttyUSB*" "grep -vE 'printk'" || echo -e "Screen terminated with an error. Check the screen log for details."
+			callscreen "ls /dev/ttyUSB*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		Darwin)
 			callscreen "ls /dev/tty.usb*" "grep -vE 'blue'" || echo -e "Screen terminated with an error. Check the screen log for details."
@@ -169,7 +169,14 @@ version () {
 
 # Prints the usage.
 usage () {
-	echo -e "Usage: bash usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. If this option is not set, it defaults to 115200.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n--help|--usage Shows this help."
+	case $TERM in
+		xterm-color|*-256color)
+			echo -e "\033[1;33mUsage: bash usbserial.sh [options]\033[00m\n\n\033[1;37mOptions:\033[00m\n\033[1;34m-b|-baudrate \033[0;33m[baudrate] \033[00mSpecifies the baud rate when you connect to the serial port. If the option is not set, it defaults to 115200.\n\033[1;34m-h|--hostname \033[0;33m[hostname] \033[00mSpecifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n\033[1;34m-v|--version\033[00m Shows the version of the script.\n\033[1;34m--help|--usage \033[00mShows this help."
+			;;
+		*)
+			echo -e "Usage: bash usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. If this option is not set, it defaults to 115200.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n--help|--usage Shows this help."
+			;;
+	esac
 }
 
 restorefile () {
