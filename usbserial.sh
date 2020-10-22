@@ -19,12 +19,11 @@ callscreen () {
 	if [ ${#2} -eq 0 ]; then
 		local TTYUSB="$1"
 	else
-		alias ttyusb_cmd="$1 | $2"
-		local TTYUSB="ttyusb_cmd"
+		local TTYUSB="$1 | $2"
 	fi
 	local QMARK=1
-	if $TTYUSB > /dev/null; [ $? -eq 0 ]; then
-        	TTYUSB_LC=$($TTYUSB | wc -l | sed 's/[ \t]//g')
+	if eval $TTYUSB> /dev/null; [ $? -eq 0 ]; then
+        	TTYUSB_LC=$(eval $TTYUSB| wc -l | sed 's/[ \t]//g')
         else
                 TTYUSB_LC=0
         fi
@@ -35,7 +34,7 @@ callscreen () {
                         ;;
                 1)
                         echo -e "Attaching to the screen..."
-                        screen -c "$HOME/.screenrc" -R -L $($TTYUSB | head -n 1) $BAUD_RATE; QMARK=$?
+                        screen -c "$HOME/.screenrc" -R -L $(eval $TTYUSB| head -n 1) $BAUD_RATE; QMARK=$?
                         ;;
         	*)
 			if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
@@ -44,22 +43,22 @@ callscreen () {
                                 until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
 	                                case "$L" in
         	                                1)
-                	                                TTYUSB_ARRAY+=("$($TTYUSB | head -n 1)")
+                	                                TTYUSB_ARRAY+=("$(eval $TTYUSB| head -n 1)")
                                                         L=$(( L + 1 ))
                                                         ;;
                                                 $TTYUSB_LC)
-                                                        TTYUSB_ARRAY+=("$($TTYUSB | tail -n 1)")
+                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB| tail -n 1)")
                                                         unset L
                                                         ;;
                                                 *)
-                                                        TTYUSB_ARRAY+=("$($TTYUSB | head -n $L | tail -n 1)")
+                                                        TTYUSB_ARRAY+=("$(eval $TTYUSB| head -n $L | tail -n 1)")
                                                         L=$(( L + 1 ))
                                                         ;;
                                         esac
                                 done
 
 			else
-				readarray -t TTYUSB_ARRAY <<< "$($TTYUSB)"
+				readarray -t TTYUSB_ARRAY <<< "$(eval $TTYUSB)"
 			fi
 			echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
                 	readnull SELECTEDTTY
@@ -79,7 +78,6 @@ callscreen () {
                 	done
         		;;
 	esac
-	unalias ttyusb_cmd
 	return $QMARK
 }
 
