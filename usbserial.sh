@@ -14,21 +14,70 @@ readnull () {
         export $1=$INPUTVALUE
 }
 
-# Check if an array contains a value.
-insidearray () {
-	local INVALUE=$1
-	shift
-	local IN=1
-	for ELEMENT; do
-		if [[ $ELEMENT == "$INVALUE" ]]; then
-			IN=0
-			break
-		fi
-	done
-	return $IN
+# Actually calls the screen.
+callscreen () {
+	local TTYUSB="ls $1"
+	local QMARK=1
+	if $TTYUSB > /dev/null; [ $? -eq 0 ]; then
+        	TTYUSB_LC=$($TTYUSB | wc -l | sed 's/[ \t]//g')
+        else
+                TTYUSB_LC=0
+        fi
+        case "$TTYUSB_LC" in
+                0)
+                        echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
+                        exit 1
+                        ;;
+                1)
+                        echo -e "Attaching to the screen..."
+                        screen -c "$HOME/.screenrc" -R -L $($TTYUSB | head -n 1) $BAUD_RATE; QMARK=$?
+                        ;;
+        	*)
+			if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+				echo -e "Bash 4 is more than $(( $(date +%Y) - 2009 )) years old. UPDATE!!" >&2
+				L=1
+                                until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
+	                                case "$L" in
+        	                                1)
+                	                                TTYUSB_ARRAY+=("$($TTYUSB | head -n 1)")
+                                                        L=$(( L + 1 ))
+                                                        ;;
+                                                $TTYUSB_LC)
+                                                        TTYUSB_ARRAY+=("$($TTYUSB | tail -n 1)")
+                                                        unset L
+                                                        ;;
+                                                *)
+                                                        TTYUSB_ARRAY+=("$($TTYUSB | head -n $L | tail -n 1)")
+                                                        L=$(( L + 1 ))
+                                                        ;;
+                                        esac
+                                done
+
+			else
+				readarray -t TTYUSB_ARRAY <<< "$($TTYUSB)"
+			fi
+			echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
+                	readnull SELECTEDTTY
+                	while [ 0 -eq 0 ]; do
+                        	if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
+                                	echo -e "Attaching to the screen..."
+                                	screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE; QMARK=$?
+                                	break
+                        	elif [ $SELECTEDTTY == "NULL0" ]; then
+                                	echo -e "Attaching to the screen..."
+                                	screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE; QMARK=$?
+                        		break
+                        	else
+                                	echo -e "\nUnknown choice. press [ENTER] to select ${TTYUSB_ARRAY[0]} or enter one of these possible inputs and press [ENTER]: ${TTYUSB_ARRAY[@]}"
+                        		readnull SELECTEDTTY
+                		fi
+                	done
+        		;;
+	esac
+	return $QMARK
 }
 
-# Modifies the screenrc file and actually calls the screen.
+# Modifies the screenrc file and determines the conditions for calling the screen.
 screentty () {
 	# Checks if the log directory exists and if it doesn't, creates it.
 	if [ -d $HOME/screen_log ]; then
@@ -94,147 +143,13 @@ EOF
 	# Checks the operating system and calls the screen.
 	case "$(uname)" in
 		Linux)
-			TTYUSB=$(ls /dev/ttyUSB*)
-			if ls /dev/ttyUSB* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/ttyUSB* | wc -l)
-			else
-				TTYUSB_LC=0
-			fi
-			case "$TTYUSB_LC" in
-				0)
-					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-					exit 1
-					;;
-				1)
-					echo -e "Attaching to the screen..."
-					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyUSB* | head -n 1) $BAUD_RATE
-					;;
-				*)
-					readarray -t TTYUSB_ARRAY <<< "$TTYUSB"
-					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					readnull SELECTEDTTY
-					while [ 0 -eq 0 ]; do
-						if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
-							echo -e "Attaching to the screen..."
-							screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
-							break
-						elif [ $SELECTEDTTY == "NULL0" ]; then
-							echo -e "Attaching to the screen..."
-							screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-							break
-						else
-							echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
-							readnull SELECTEDTTY
-						fi
-					done
-					;;
-			esac
+			callscreen "/dev/ttyUSB*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		Darwin)
-			TTYUSB=$(ls /dev/tty.usb*)
-			if ls /dev/tty.usb* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/tty.usb* | wc -l | sed 's/[ \t]//g')
-			else
-				TTYUSB_LC=0
-			fi
-			case "$TTYUSB_LC" in
-				0)
-					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-					exit 1
-					;;
-				1)
-					echo -e "Attaching to the screen..."
-					screen -c "$HOME/.screenrc" -R -L $(ls /dev/tty.usb* | head -n 1) $BAUD_RATE
-					;;
-				*)
-					L=1
-					until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
-						case "$L" in
-							1)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
-								L=$(( L + 1 ))
-								;;
-							$TTYUSB_LC)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
-								unset L
-								;;
-							*)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
-								L=$(( L + 1 ))
-								;;
-						esac
-					done
-					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					readnull SELECTEDTTY
-                                        while [ 0 -eq 0 ]; do
-                                                if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
-                                                        echo -e "Attaching to the screen..."
-                                                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
-                                                        break
-                                                elif [ $SELECTEDTTY == "NULL0" ]; then
-                                                        echo -e "Attaching to the screen..."
-                                                        screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-                                                        break
-                                                else
-                                                        echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
-                                                        readnull SELECTEDTTY
-                                                fi
-                                        done
-					;;
-			esac
+			callscreen "/dev/tty.usb*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		FreeBSD)
-			TTYUSB=$(ls /dev/ttyU* | grep -vE '(init|lock)')
-			if ls /dev/ttyU* > /dev/null; [ $? -eq 0 ]; then
-				TTYUSB_LC=$(ls /dev/ttyU* | grep -vE '(init|lock)' | wc -l | sed 's/[ \t]//g')
-			else
-				TTYUSB_LC=0
-			fi
-			case "$TTYUSB_LC" in
-                		0)
-					echo -e "No adequate usb serial device found. Connect your USB serial port and try again."
-					exit 1
-					;;
-				1)
-					echo -e "Attaching to the screen..."
-					screen -c "$HOME/.screenrc" -R -L $(ls /dev/ttyU* | grep -vE '(init|lock)' | head -n 1) $BAUD_RATE
-					;;
-				*)
-					L=1
-					until [ $L -eq $(( TTYUSB_LC + 1 )) ]; do
-						case "$L" in
-							1)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n 1)")
-								L=$(( L + 1 ))
-								;;
-							$TTYUSB_LC)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | tail -n 1)")
-								unset L
-								;;
-							*)
-								TTYUSB_ARRAY+=("$(echo "$TTYUSB" | head -n $L | tail -n 1)")
-								L=$(( L + 1 ))
-								;;
-						esac
-					done
-					echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] (Default=${TTYUSB_ARRAY[0]}).\nPossible input: ${TTYUSB_ARRAY[@]}"
-					readnull SELECTEDTTY
-                                        while [ 0 -eq 0 ]; do
-                                                if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
-                                                        echo -e "Attaching to the screen..."
-                                                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE
-                                                        break
-                                                elif [ $SELECTEDTTY == "NULL0" ]; then
-                                                        echo -e "Attaching to the screen..."
-                                                        screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE
-                                                        break
-                                                else
-                                                        echo -e "Unknown choice. Possible input: ${TTYUSB_ARRAY[@]}"
-                                                        readnull SELECTEDTTY
-                                                fi
-                                        done
-					;;
-			esac
+			callscreen "/dev/ttyU* | grep -vE '(init|lock)'" || echo -e " Screen terminated with an error. Check the screen log for details."
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
@@ -245,7 +160,7 @@ EOF
 
 # Prints the script version.
 version () {
-	echo -e "Breakfast-Serial v0.94.810-6\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
+	echo -e "Breakfast-Serial v0.94.810-7\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
 }
 
 # Prints the usage.
