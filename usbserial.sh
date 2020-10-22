@@ -16,7 +16,11 @@ readnull () {
 
 # Actually calls the screen.
 callscreen () {
-	local TTYUSB="$1"
+	if [ -z $2 ]; then
+		local TTYUSB="$1"
+	else
+		local TTYUSB="$1 | $2"
+	fi
 	local QMARK=1
 	if $TTYUSB > /dev/null; [ $? -eq 0 ]; then
         	TTYUSB_LC=$($TTYUSB | wc -l | sed 's/[ \t]//g')
@@ -149,7 +153,7 @@ EOF
 			callscreen "ls /dev/tty.usb*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		FreeBSD)
-			callscreen 'ls /dev/ttyU* | grep -vE '(init|lock)'' || echo -e " Screen terminated with an error. Check the screen log for details."
+			callscreen "ls /dev/ttyU*" "grep -vE '(init|lock)'" || echo -e " Screen terminated with an error. Check the screen log for details."
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
