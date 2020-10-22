@@ -149,7 +149,7 @@ EOF
 			callscreen "ls /dev/tty.usb*" || echo -e "Screen terminated with an error. Check the screen log for details."
 			;;
 		FreeBSD)
-			callscreen "ls /dev/ttyU* | grep -vE '(init|lock)'" || echo -e " Screen terminated with an error. Check the screen log for details."
+			callscreen 'ls /dev/ttyU* | grep -vE '(init|lock)'' || echo -e " Screen terminated with an error. Check the screen log for details."
 			;;
 		*)
 			echo -e "This script doesn't support this type of operating system yet. Aborting."
