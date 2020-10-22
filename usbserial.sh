@@ -16,7 +16,7 @@ readnull () {
 
 # Actually calls the screen.
 callscreen () {
-	if [ -z $2 ]; then
+	if [ ${#2} -eq 0 ]; then
 		local TTYUSB="$1"
 	else
 		alias ttyusb_cmd="$1 | $2"
