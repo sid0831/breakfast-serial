@@ -215,6 +215,7 @@ while test $# -gt 0; do
 		*)
 			echo -e "Unknown option -- $1\n"
 			usage
+			exit 1
 			;;
 	esac
 done
