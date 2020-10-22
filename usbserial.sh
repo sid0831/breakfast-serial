@@ -292,18 +292,14 @@ while test $# -gt 0; do
 		-v|--version)
 			version
 			exit 0
-			shift
 			;;
 		--help|--usage)
 			usage
-			exit 1
-			shift
+			exit 0
 			;;
 		*)
 			echo -e "Unknown option -- $1\n"
 			usage
-			exit 1
-			shift
 			;;
 	esac
 done
