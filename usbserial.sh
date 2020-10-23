@@ -192,10 +192,10 @@ restorefile () {
 
 BAUD_RATE=115200
 
-while test $# -gt 0; do
+while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--hostname)
-			if test $# -gt 0; then
+			if [ $# -gt 1 ] && [ $(echo "$2" | cut -c 1) != "-" ]; then
 				HOST_NAME=$2
 				shift
 			else
@@ -205,7 +205,7 @@ while test $# -gt 0; do
 			shift
 			;;
 		-b|--baudrate)
-			if test $# -gt 0 && [ "$2" -le 256000 ]; then
+			if [ $# -gt 1 ] && [ "$2" -ge 72 ] && [ "$2" -le 256000 ]; then
 				unset BAUD_RATE
 				BAUD_RATE=$2
 				shift
@@ -224,7 +224,7 @@ while test $# -gt 0; do
 			exit 0
 			;;
 		*)
-			echo -e "Unknown option -- $1\n"
+			echo -e "Unknown option or argument -- $1\n"
 			usage
 			exit 1
 			;;
