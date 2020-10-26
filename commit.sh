@@ -14,7 +14,7 @@ verschange () {
   local COMMITCOUNT=$(git rev-list --count main)
   VERSARRAY[4]=$(( $COMMITCOUNT + 1 ))
   echo -e "Marking new version...\nOLD: v$VERSINFO\nNEW: v${VERSARRAY[0]}.${VERSARRAY[1]}.${VERSARRAY[2]}-${VERSARRAY[3]}.${VERSARRAY[4]}"
-  sed -E -i "s/([0-9]{1})(\.)([0-9]{2})(\.)([0-9]{3})(\-)([0-9]{1})(\.)([0-9]{2})/${VERSARRAY[0]}.${VERSARRAY[1]}.${VERSARRAY[2]}\-${VERSARRY[3]}.${VERSARRAY[4]}/g" $PWD/usbserial.sh; QMARK=$?
+  sed -E -i "s/([0-9]{1})(\.)([0-9]{2})(\.)([0-9]{3})(\-)([0-9]{1})(\.)([0-9]{2})/${VERSARRAY[0]}.${VERSARRAY[1]}.${VERSARRAY[2]}\-${VERSARRAY[3]}.${VERSARRAY[4]}/g" $PWD/usbserial.sh; QMARK=$?
   return $QMARK
 }
 

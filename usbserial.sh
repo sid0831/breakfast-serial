@@ -155,7 +155,7 @@ EOF
 
 # Prints the script version.
 version () {
-	echo -e "Breakfast-Serial v0.94.810-.60\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
+	echo -e "Breakfast-Serial v0.94.810-7.61\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
 }
 
 # Prints the usage.
