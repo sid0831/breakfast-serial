@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# USB serial port attachment script using GNU screen.
+# Written by Sidney Jeong, GNU GPL 3.0.
+
 unset HOST_NAME
 unset CONTINUE
 
@@ -99,19 +102,19 @@ screentty () {
 		cat<<EOF > $HOME/.screenrc
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
 logfile flush 1
-logstamp on
+logstamp off
 log on
 EOF
 	else
 		echo -e "You didn't enter the host name for your connected device. Continue? (Y/N):"
 		read CONTINUE
-		while [ 0 -eq 0 ]; do
+		while true; do
 			case "$CONTINUE" in
 				Y|y|Yes|yes)
 					cat<<EOF > $HOME/.screenrc
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-serialconsole-diagnose.log"
 logfile flush 1
-logstamp on
+logstamp off
 log on
 EOF
 					break
@@ -155,7 +158,7 @@ EOF
 
 # Prints the script version.
 version () {
-	echo -e "Breakfast-Serial v0.94.810-7.61\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
+	echo -e "Breakfast-Serial v0.94.810-7.62\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
 }
 
 # Prints the usage.
@@ -196,7 +199,7 @@ while [ $# -gt 0 ]; do
 			shift
 			;;
 		-b|--baudrate)
-			if [ $# -gt 1 ] && [ "$2" -ge 72 ] && [ "$2" -le 256000 ]; then
+                        if [ $# -gt 1 ] && [ "$2" -ge 72 ] && [ "$2" -le 256000 ] && [ $(echo "$2" | cut -c 1) != "-" ]; then
 				unset BAUD_RATE
 				BAUD_RATE=$2
 				shift
