@@ -9,7 +9,7 @@ unset CONTINUE
 # Read function with null value support.
 readnull () {
         local INPUTVALUE
-        read INPUTVALUE
+        read -r INPUTVALUE
         if [ ${#INPUTVALUE} -eq 0 ]; then
                 INPUTVALUE="NULL0"
         fi
@@ -24,7 +24,7 @@ callscreen () {
 	else
 		local TTYUSB="$1 | $2"
 	fi
-	if eval $TTYUSB > /dev/null; [ $? -eq 0 ]; then
+	if eval $TTYUSB > /dev/null; then
 		local TTYUSB_ARRAY=( $(eval $TTYUSB) )
 	else
 		local TTYUSB_ARRAY=()
@@ -107,7 +107,7 @@ log on
 EOF
 	else
 		echo -e "You didn't enter the host name for your connected device. Continue? (Y/N):"
-		read CONTINUE
+		read -r CONTINUE
 		while true; do
 			case "$CONTINUE" in
 				Y|y|Yes|yes)
@@ -124,18 +124,18 @@ EOF
 					;;
 				*)
 					echo -e "The input is wrong. Continue without connected device hostname (Y/N)?:"
-					read CONTINUE
+					read -r CONTINUE
 					;;
 			esac
 		done
 	fi
 	
 	# Checks if the user is in dialout group (Some operating systems and distributions need the user to be in the group).
-	DIALOUT=$(cat /etc/group | grep dialout | grep $USER)
-	DIALGID=$(cat /etc/group | grep dialout | cut -d ':' -f 3)
+	DIALOUT=$(grep -E 'dialout' /etc/group | grep $USER)
+	DIALGID=$(grep -E 'dialout' /etc/group | cut -d ':' -f 3)
 	if [ ${#DIALOUT} -eq 0 ]; then
         echo -e "The current user is not found in dialout group (GID $DIALGID).\nThe screen might not work as expected without sudo or adding the user to the group, logging out, and back in.\nPress [ENTER] to continue."
-        read RETURN_KEY
+        read -r RETURN_KEY
 	fi
 	
 	# Checks the operating system and calls the screen.
@@ -174,8 +174,7 @@ usage () {
 }
 
 restorefile () {
-	mv $HOME/.screenrc.tmp $HOME/.screenrc
-	if [ $? -eq 0 ]; then
+	if mv $HOME/.screenrc.tmp $HOME/.screenrc; then
 		echo -e "Successfully restored screen user configuration file."
 		exit 0
 	else
