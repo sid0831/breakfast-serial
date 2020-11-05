@@ -5,7 +5,7 @@
 
 unset HOST_NAME
 unset CONTINUE
-VERSION="0.94.810-66.67"
+VERSION="0.94.810-66.68"
 
 # Read function with null value support.
 readnull () {
