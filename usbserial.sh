@@ -5,7 +5,7 @@
 
 unset HOST_NAME
 unset CONTINUE
-VERSION="0.94.810-7.69"
+VERSION="0.94.810-7.70"
 
 # Read function with null value support.
 readnull () {
@@ -170,7 +170,7 @@ version () {
 usage () {
         case $TERM in
                 xterm-color|*-256color)
-                        echo -e "\033[1;33mUsage: bash usbserial.sh [options]\033[00m\n\n\033[1;37mOptions:\033[00m\n\033[1;34m-b|-baudrate \033[0;33m[baudrate] \033[00mSpecifies the baud rate when you connect to the serial port. If the option is not set, it defaults to 115200.\n\033[1;34m-h|--hostname \033[0;33m[hostname] \033[00mSpecifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n\033[1;34m-v|--version\033[00m Shows the version of the script.\n\033[1;34m--help|--usage \033[00mShows this help."
+                        echo -e "\033[1;33mUsage: bash usbserial.sh [options]\033[00m\n\n\033[1;37mOptions:\033[00m\n\033[1;34m-b|--baudrate \033[0;33m[baudrate] \033[00mSpecifies the baud rate when you connect to the serial port. If the option is not set, it defaults to 115200.\n\033[1;34m-h|--hostname \033[0;33m[hostname] \033[00mSpecifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n\033[1;34m-v|--version\033[00m Shows the version of the script.\n\033[1;34m--help|--usage \033[00mShows this help."
                         ;;
                 *)
                         echo -e "Usage: bash usbserial.sh [options]\n\n-b|--baudrate [baudrate] Specifies the baud rate when you connect to the serial port. If this option is not set, it defaults to 115200.\n-h|--hostname [hostname] Specifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n-v|--version Shows the version of the script.\n--help|--usage Shows this help."
