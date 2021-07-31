@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # USB serial port attachment script using GNU screen.
-# Written by Sidney Jeong, GNU GPL 3.0.
+# Written by Sidney Jeong, MPL 2.0.
 
 unset HOST_NAME
 unset CONTINUE
-VERSION="0.94.810-7.70"
+VERSION="0.94.810-7.72"
 
 # Read function with null value support.
 readnull () {
@@ -163,7 +163,7 @@ EOF
 
 # Prints the script version.
 version () {
-        echo -e "Breakfast-Serial v$VERSION\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, GNU GPL 3.0"
+        echo -e "Breakfast-Serial v$VERSION\nA simple bash script for convenient USB Serial Console usage.\nWritten by Sidney Jeong, MPL 2.0"
 }
 
 # Prints the usage.
