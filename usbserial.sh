@@ -5,7 +5,7 @@
 
 unset HOST_NAME
 unset CONTINUE
-VERSION="0.94.810-7.72"
+VERSION="0.94.810-7.73"
 
 # Read function with null value support.
 readnull () {
@@ -104,6 +104,12 @@ screentty () {
                 cat<<EOF > $HOME/.screenrc
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
 logfile flush 1
+termcapinfo xterm*|rxvt*|kterm*|Eterm* ti@:te@
+backtick 1 5 5 true
+hardstatus string "screen (%n: %t)"
+caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
+caption always
+altscreen on
 logstamp off
 log on
 EOF
@@ -111,17 +117,22 @@ EOF
                 echo -e "You didn't enter the host name for your connected device. Continue? (Y/N):"
                 read -r CONTINUE
                 while true; do
-                        case "$CONTINUE" in
-                                Y|y|Yes|yes)
+                        case "${CONTINUE@L}" in
+                                y|yes)
                                         cat<<EOF > $HOME/.screenrc
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-serialconsole-diagnose.log"
 logfile flush 1
+backtick 1 5 5 true
+hardstatus string "screen (%n: %t)"
+caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
+caption always
+altscreen on
 logstamp off
 log on
 EOF
                                         break
                                         ;;
-                                N|n|No|no)
+                                n|no)
                                         restorefile
                                         exit 1
                                         ;;
@@ -133,10 +144,10 @@ EOF
                 done
         fi
 
-        # Checks if the user is in dialout/dialer group (Some operating systems and distributions need the user to be in the group).
-        local DIALOUT=$(grep -E '(dialout|dialer)' /etc/group | grep $USER | head -n 1)
-        local DIALGNAME=$(grep -E '(dialout|dialer)' /etc/group | cut -d ':' -f 1 | head -n 1)
-        local DIALGID=$(grep -E '(dialout|dialer)' /etc/group | cut -d ':' -f 3 | head -n 1)
+        # Checks if the user is in dialout/dialer/uucp group (Some operating systems and distributions need the user to be in the group).
+        local DIALOUT=$(grep -E '(dialout|dialer|uucp)' /etc/group | grep $USER | head -n 1)
+        local DIALGNAME=$(grep -E '(dialout|dialer|uucp)' /etc/group | cut -d ':' -f 1 | head -n 1)
+        local DIALGID=$(grep -E '(dialout|dialer|uucp)' /etc/group | cut -d ':' -f 3 | head -n 1)
         if [ ${#DIALOUT} -eq 0 ]; then
         echo -e "The current user is not found in $DIALGNAME group (GID $DIALGID).\nThe screen might not work as expected without sudo or adding the user to the group, logging out, and back in.\nPress [ENTER] to continue."
         read -r RETURN_KEY
