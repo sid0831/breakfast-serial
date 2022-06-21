@@ -105,16 +105,18 @@ screentty () {
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
 logfile flush 1
 termcapinfo xterm*|rxvt*|kterm*|Eterm* ti@:te@
+termcapinfo rxvt* 'hs:ts=\E]2;:fs=\007:ds=\E]2;\007'
 backtick 1 5 5 true
-hardstatus string "screen (%n: %t)"
-caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
+shelltitle "\$ |bash:"
+hardstatus off
+caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw"
 caption always
 altscreen on
 logstamp off
 log on
 EOF
         else
-                echo -e "You didn't enter the host name for your connected device. Continue? (Y/N):"
+                echo -e "You didn't enter the host name for your connected device. Continue? (y/n):"
                 read -r CONTINUE
                 while true; do
                         case "${CONTINUE@L}" in
@@ -123,8 +125,10 @@ EOF
 logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-serialconsole-diagnose.log"
 logfile flush 1
 backtick 1 5 5 true
-hardstatus string "screen (%n: %t)"
-caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
+shelltitle "\$ |bash:"
+hardstatus off
+caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw"
+termcapinfo rxvt* 'hs:ts=\E]2;:fs=\007:ds=\E]2;\007'
 caption always
 altscreen on
 logstamp off
