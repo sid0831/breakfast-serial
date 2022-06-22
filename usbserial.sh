@@ -39,11 +39,13 @@ callscreen () {
                         ;;
                 1)
                         echo -e "Attaching to the screen..."
-                        screen -c "$HOME/.screenrc" -R -L $(eval $TTYUSB | head -n 1) $BAUD_RATE; QMARK=$?
+                        SELECTEDTTY="$(eval $TTYUSB | head -n 1)"
+                        sed -i "s/PLAC3H0LDER/$(echo $SELECTEDTTY | sed 's/\//\\\//g')/g" $HOME/.screenrc
+                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE; QMARK=$?
                         ;;
                 *)
                         case "$TERM" in
-                                xterm-color|*-256color)
+                                *color)
                                         echo -e "More than one USB serial devices found.\nEnter desired device name and press [ENTER] \033[1;34m(Default=${TTYUSB_ARRAY[0]}).\033[00m\n\033[1;00mPossible input: \033[00m${TTYUSB_ARRAY[@]}"
                                         ;;
                                 *)
@@ -54,15 +56,18 @@ callscreen () {
                         while true; do
                                 if [[ ${TTYUSB_ARRAY[@]} =~ "$SELECTEDTTY" ]]; then
                                         echo -e "Attaching to the screen..."
+                                        sed -i "s/PLAC3H0LDER/$(echo $SELECTEDTTY | sed 's/\//\\\//g')/g" $HOME/.screenrc
                                         screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE; QMARK=$?
                                         break
                                 elif [ $SELECTEDTTY == "NULL0" ]; then
                                         echo -e "Attaching to the screen..."
-                                        screen -c "$HOME/.screenrc" -R -L ${TTYUSB_ARRAY[0]} $BAUD_RATE; QMARK=$?
+                                        SELECTEDTTY=${TTYUSB_ARRAY[0]}
+                                        sed -i "s/PLAC3H0LDER/$(echo $SELECTEDTTY | sed 's/\//\\\//g')/g" $HOME/.screenrc
+                                        screen -c "$HOME/.screenrc" -R -L $SELECTEDTTY $BAUD_RATE; QMARK=$?
                                         break
                                 else
                                         case "$TERM" in
-                                                xterm-color|*-256color)
+                                                *color)
                                                         echo -e "\nUnknown choice. Press [ENTER] to select \033[1;34m${TTYUSB_ARRAY[0]}\033[00m or enter one of these possible inputs and press [ENTER]: ${TTYUSB_ARRAY[@]}"
                                                         ;;
                                                 *)
@@ -102,16 +107,15 @@ screentty () {
         # Checks if the host name is set and modifies the screenrc file.
         if [ ${#HOST_NAME} -ne 0 ]; then
                 cat<<EOF > $HOME/.screenrc
-logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-`echo \$HOST_NAME`-serialconsole-diagnose.log"
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-$USER-`echo $HOST_NAME`-serialconsole-diagnose.log"
 logfile flush 1
 termcapinfo xterm*|rxvt*|kterm*|Eterm* ti@:te@
 termcapinfo rxvt* 'hs:ts=\E]2;:fs=\007:ds=\E]2;\007'
 backtick 1 5 5 true
-shelltitle "\$ |bash:"
+shelltitle "\$ |PLAC3H0LDER:"
 hardstatus off
 caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw"
 caption always
-altscreen on
 logstamp off
 log on
 EOF
@@ -122,15 +126,14 @@ EOF
                         case "${CONTINUE@L}" in
                                 y|yes)
                                         cat<<EOF > $HOME/.screenrc
-logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-\$USER-serialconsole-diagnose.log"
+logfile "$HOME/screen_log/`date +%Y-%m-%dT%H%M%S%z`-$USER-serialconsole-diagnose.log"
 logfile flush 1
 backtick 1 5 5 true
-shelltitle "\$ |bash:"
+shelltitle "\$ |PLAC3H0LDER:"
 hardstatus off
 caption string "%{= kw}%Y-%m-%d;%c %{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw"
 termcapinfo rxvt* 'hs:ts=\E]2;:fs=\007:ds=\E]2;\007'
 caption always
-altscreen on
 logstamp off
 log on
 EOF
@@ -184,7 +187,7 @@ version () {
 # Prints the usage.
 usage () {
         case $TERM in
-                xterm-color|*-256color)
+                *color)
                         echo -e "\033[1;33mUsage: bash usbserial.sh [options]\033[00m\n\n\033[1;37mOptions:\033[00m\n\033[1;34m-b|--baudrate \033[0;33m[baudrate] \033[00mSpecifies the baud rate when you connect to the serial port. If the option is not set, it defaults to 115200.\n\033[1;34m-h|--hostname \033[0;33m[hostname] \033[00mSpecifies the host name you would like to connect to. You can omit this option, but the script will make sure if you really want to leave the hostname blank.\n\033[1;34m-v|--version\033[00m Shows the version of the script.\n\033[1;34m--help|--usage \033[00mShows this help."
                         ;;
                 *)
